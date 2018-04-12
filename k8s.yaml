@@ -1,0 +1,72 @@
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvegapp
+  labels:
+    app: cvegapp
+spec:
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: cvegapp
+        cvapp: cvegapp
+    spec:
+      containers:
+      - image: <AWS_ACC_ID>.dkr.ecr.us-east-1.amazonaws.com/nearmap/cvm-example:latest
+        imagePullPolicy: Always
+        name: cveg-container
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cveg-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: cvegapp
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: cveg-ing
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/subnets:  subnet-8ef9f0d3,subnet-ffeb36b5
+    alb.ingress.kubernetes.io/security-groups: sg-40bd4409,sg-43bd440a
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "5"
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "2"
+    alb.ingress.kubernetes.io/healthcheck-path: /
+  labels:
+    app: cveg-ing
+spec:
+  rules:
+  - host: demo.nearmapdev.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: cveg-svc
+          servicePort: 80
+---
+kind: ContainerVersion
+apiVersion: custom.k8s.io/v1
+metadata:
+  name: cvegapp-cv
+spec:
+  imageRepo: <AWS_ACC_ID>.dkr.ecr.us-east-1.amazonaws.com/nearmap/cvm-example:latest
+  tag: demo
+  checkFrequency: 5
+  selector:
+    cvapp: cvegapp
+  container: cveg-container
+---

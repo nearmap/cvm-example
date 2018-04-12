@@ -1,0 +1,123 @@
+version: 2
+
+defaults: &defaults
+  machine: true
+  working_directory: ~/go/src/github.com/suneeta-mall/docker-2048
+
+deploy: &deploy-env
+  name: Deploy to env
+  command: |
+    echo "steps to deploy container image ${CIRCLE_SHA1} to env"
+
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Build container image
+          command: |
+            `aws ecr get-login --no-include-email --region us-east-1`
+            docker build -t suneeta-mall/docker-2048 .
+
+  unit-integration-test:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Run unit and integration tests
+          command: |
+            docker-compose up --abort-on-container-exit
+
+  system-test:
+    <<: *defaults
+    steps:
+      - run:
+          name: Run system-test
+          command: |
+            echo "system-test"
+
+  acceptance-test:
+    <<: *defaults
+    steps:
+      - run:
+          name: Run acceptance-test
+          command: |
+            echo "acceptance-test"
+
+
+  push-to-container-registry:
+    <<: *defaults
+    steps:
+      - checkout
+      - deploy:
+          name: Push application docker image
+          command: |
+            `aws ecr get-login --no-include-email --region us-east-1`
+            961173933985.dkr.ecr.us-east-1.amazonaws.com/nearmap/cvm-example
+            docker build -t nearmap/cvm-example .
+            echo "Tagging container image with sha: ${CIRCLE_SHA1}"
+            docker tag nearmap/cvm-example ${ECR_ENDPOINT}/nearmap/cvm-example:${CIRCLE_SHA1}
+            docker push ${ECR_ENDPOINT}/nearmap/cvm-example:${CIRCLE_SHA1}
+
+  dev-deploy:
+    <<: *defaults
+    steps:
+      - run:
+          <<: *deploy-env
+
+  qa-deploy:
+    <<: *defaults
+    steps:
+      - run:
+          <<: *deploy-env
+
+
+  prod-deploy:
+    <<: *defaults
+    steps:
+      - run:
+          <<: *deploy-env
+
+  verify:
+    <<: *defaults
+    steps:
+      - run:
+          name: Set env tag
+          command: |
+            echo "Verifying - regression suit"
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - unit-integration-test
+      - push-to-container-registry:
+          requires:
+            - build
+            - unit-integration-test
+      - dev-deploy:
+          requires:
+            - push-to-container-registry
+      - system-test:
+          requires:
+            - push-to-container-registry
+      - qa-deploy:
+          requires:
+            - system-test
+      - acceptance-test:
+          requires:
+            - push-to-container-registry
+      - prod-deploy:
+          filters:
+            branches:
+              only: master
+          requires:
+            - system-test
+      - verify:
+          filters:
+            branches:
+              only: master
+          requires:
+            - prod-deploy
