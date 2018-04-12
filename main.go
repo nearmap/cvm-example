@@ -13,7 +13,7 @@ import (
 func main() {
 
 	var portVar int
-	flag.IntVar(&portVar, "port", 8081, "Port number for service")
+	flag.IntVar(&portVar, "port", 80, "Port number for service")
 	flag.Parse()
 
 	stop := make(chan os.Signal, 1)
