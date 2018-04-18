@@ -8,7 +8,7 @@ CVM-Example is a sample application to demonstrate the capability of [Container 
 
 ```
     export AWS_ACC_ID=<Your AWS Account ID>  
-    sed "s/<AWS_ACC_ID>/$AWS_ACC_ID/g" k8s.yaml | kubectl apply -f - 
+    sed "s/<AWS_ACC_ID>/$AWS_ACC_ID/g" k8s.yaml | kubectl apply --record -f - 
 ```
 
 

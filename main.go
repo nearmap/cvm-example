@@ -10,6 +10,15 @@ import (
 	"time"
 )
 
+const html = `
+			<!DOCTYPE html>
+			<html>
+			<body>
+			<h1>Echo: %s!</h1>
+			</body>
+			</html>
+			`
+
 func main() {
 
 	var portVar int
@@ -21,7 +30,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/echo", func(w http.ResponseWriter, req *http.Request) {
-		fmt.Fprintf(w, fmt.Sprintf("Echo: %s!", req.URL.Query().Get("msg")))
+		fmt.Fprintf(w, fmt.Sprintf(html, req.URL.Query().Get("msg")))
 	})
 
 	srv := &http.Server{
