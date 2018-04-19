@@ -13,7 +13,7 @@ import (
 const html = `
 			<!DOCTYPE html>
 			<html>
-			<body>
+			<body style="background-position: center;background-repeat: no-repeat;background-image: url('https://1.bp.blogspot.com/-wwm4xAAmbC0/VzY4flps3oI/AAAAAAAAGhQ/0agEuieNpJAClu4Vb0MeaOm5I5UY4r-2QCLcB/s1600/macaco.gif');">
 			<h1>Echo: %s!</h1>
 			</body>
 			</html>

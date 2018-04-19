@@ -10,14 +10,6 @@ deploy: &deploy-env
   command: |
     echo "steps to deploy container image ${CIRCLE_SHA1} to env"
     source env_file
-
-    docker run \
-      -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-      -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-      nearmap/cvmanager cr tags remove \
-      --repo ${ECR_ENDPOINT}/nearmap/cvm-example \
-      --tags $ENV
-
     docker run \
       -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
       -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
