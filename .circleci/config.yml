@@ -12,17 +12,6 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Build container image
-          command: |
-            `aws ecr get-login --no-include-email --region us-east-1`
-            docker build -t nearmap/cvm-example .
-
-  push-to-container-registry:
-    <<: *defaults
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
           name: Push application docker image
           command: |
             `aws ecr get-login --no-include-email --region us-east-1`
@@ -30,21 +19,12 @@ jobs:
             echo "Tagging container image with sha: ${CIRCLE_SHA1}"
             docker tag nearmap/cvm-example ${ECR_ENDPOINT}/nearmap/cvm-example:${CIRCLE_SHA1}
             docker push ${ECR_ENDPOINT}/nearmap/cvm-example:${CIRCLE_SHA1}
-
-  deploy-to-env:
-    <<: *defaults
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Deploy to environment
-          command: |
             docker run \
               -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
               -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
               nearmap/cvmanager cr tags add \
               --repo ${ECR_ENDPOINT}/nearmap/cvm-example \
-              --tags demo \
+              --tags demo-env \
               --version ${CIRCLE_SHA1}
 
 workflows:
@@ -52,9 +32,3 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - push-to-container-registry:
-          requires:
-            - build
-      - deploy-to-env:
-          requires:
-            - push-to-container-registry

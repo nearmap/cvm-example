@@ -5,7 +5,7 @@ metadata:
   name: myappcv
 spec:
   imageRepo: <AWS_ACC_ID>.dkr.ecr.us-east-1.amazonaws.com/nearmap/cvm-example
-  tag: demo
+  tag: demo-env
   checkFrequency: 60
   selector:
     cvapp: myapp
