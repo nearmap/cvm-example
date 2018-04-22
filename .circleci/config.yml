@@ -37,9 +37,9 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-        name: Deploy to environment
-        command: |
-          echo "steps to deploy container image ${CIRCLE_SHA1} to env"
+          name: Deploy to environment
+          command: |
+            echo "steps to deploy container image ${CIRCLE_SHA1} to env"
 
 workflows:
   version: 2
