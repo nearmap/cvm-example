@@ -33,7 +33,7 @@ spec:
         app: myapp
     spec:
       containers:
-      - image: <AWS_ACC_ID>.dkr.ecr.us-east-1.amazonaws.com/nearmap/cvm-example:demo
+      - image: <AWS_ACC_ID>.dkr.ecr.us-east-1.amazonaws.com/nearmap/cvm-example:latest
         name: myapp
         ports:
         - containerPort: 80
