@@ -22,7 +22,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - push:
+      - run:
           name: Push application docker image
           command: |
             `aws ecr get-login --no-include-email --region us-east-1`
@@ -36,7 +36,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - deploy:
+      - run:
         name: Deploy
         command: |
           source env_file
