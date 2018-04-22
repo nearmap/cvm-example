@@ -44,7 +44,7 @@ jobs:
               -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
               nearmap/cvmanager cr tags add \
               --repo ${ECR_ENDPOINT}/nearmap/cvm-example \
-              --tags $ENV \
+              --tags demo \
               --version ${CIRCLE_SHA1}
 
 workflows:
