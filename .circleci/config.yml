@@ -39,4 +39,3 @@ workflows:
       - push-to-container-registry:
           requires:
             - build
-            - unit-integration-test
