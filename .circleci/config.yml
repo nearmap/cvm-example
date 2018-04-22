@@ -22,7 +22,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - deploy:
+      - push:
           name: Push application docker image
           command: |
             `aws ecr get-login --no-include-email --region us-east-1`
@@ -31,17 +31,22 @@ jobs:
             docker tag nearmap/cvm-example ${ECR_ENDPOINT}/nearmap/cvm-example:${CIRCLE_SHA1}
             docker push ${ECR_ENDPOINT}/nearmap/cvm-example:${CIRCLE_SHA1}
 
-  deploy: &deploy-env
-    name: Deploy to env
-    command: |
-      source env_file
-      docker run \
-        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-        nearmap/cvmanager cr tags add \
-        --repo ${ECR_ENDPOINT}/nearmap/cvm-example \
-        --tags demo \
-        --version ${CIRCLE_SHA1}
+  deploy-to-env:
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+      - deploy:
+        name: Deploy
+        command: |
+          source env_file
+          docker run \
+            -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+            -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+            nearmap/cvmanager cr tags add \
+            --repo ${ECR_ENDPOINT}/nearmap/cvm-example \
+            --tags demo \
+            --version ${CIRCLE_SHA1}
 
 workflows:
   version: 2
@@ -51,6 +56,6 @@ workflows:
       - push-to-container-registry:
           requires:
             - build
-      - deploy-env
+      - deploy-to-env:
           requires:
             - push-to-container-registry
