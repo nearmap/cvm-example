@@ -5,19 +5,6 @@ defaults: &defaults
     - image: nearmap/docker-ce
   working_directory: ~/go/src/github.com/nearmap/cvm-example
 
-deploy: &deploy-env
-  name: Deploy to env
-  command: |
-    echo "steps to deploy container image ${CIRCLE_SHA1} to env"
-    source env_file
-    docker run \
-      -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-      -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-      nearmap/cvmanager cr tags add \
-      --repo ${ECR_ENDPOINT}/nearmap/cvm-example \
-      --tags $ENV \
-      --version ${CIRCLE_SHA1}
-
 jobs:
   build:
     <<: *defaults
@@ -29,32 +16,6 @@ jobs:
           command: |
             `aws ecr get-login --no-include-email --region us-east-1`
             docker build -t nearmap/cvm-example .
-
-  unit-integration-test:
-    <<: *defaults
-    steps:
-      - checkout
-      - run:
-          name: Run unit and integration tests
-          command: |
-            echo "unit-test"
-
-  system-test:
-    <<: *defaults
-    steps:
-      - run:
-          name: Run system-test
-          command: |
-            echo "system-test"
-
-  acceptance-test:
-    <<: *defaults
-    steps:
-      - run:
-          name: Run acceptance-test
-          command: |
-            echo "acceptance-test"
-
 
   push-to-container-registry:
     <<: *defaults
@@ -70,78 +31,12 @@ jobs:
             docker tag nearmap/cvm-example ${ECR_ENDPOINT}/nearmap/cvm-example:${CIRCLE_SHA1}
             docker push ${ECR_ENDPOINT}/nearmap/cvm-example:${CIRCLE_SHA1}
 
-  dev-deploy:
-    <<: *defaults
-    steps:
-      - setup_remote_docker
-      - run:
-          name: Set env tag
-          command: |
-            echo "export ENV=dev-demo" >> env_file
-      - run:
-          <<: *deploy-env
-
-  qa-deploy:
-    <<: *defaults
-    steps:
-      - setup_remote_docker
-      - run:
-          name: Set env tag
-          command: |
-            echo "export ENV=qa-demo" >> env_file
-      - run:
-          <<: *deploy-env
-
-  prod-deploy:
-    <<: *defaults
-    steps:
-      - setup_remote_docker
-      - run:
-          name: Set env tag
-          command: |
-            echo "export ENV=demo" >> env_file
-      - run:
-          <<: *deploy-env
-
-  verify:
-    <<: *defaults
-    steps:
-      - run:
-          name: Set env tag
-          command: |
-            echo "Verifying - regression suit"
-
 workflows:
   version: 2
   build_and_test:
     jobs:
       - build
-      - unit-integration-test
       - push-to-container-registry:
           requires:
             - build
             - unit-integration-test
-      - dev-deploy:
-          requires:
-            - push-to-container-registry
-      - system-test:
-          requires:
-            - push-to-container-registry
-      - qa-deploy:
-          requires:
-            - system-test
-      - acceptance-test:
-          requires:
-            - system-test
-      - prod-deploy:
-          filters:
-            branches:
-              only: master
-          requires:
-            - acceptance-test
-      - verify:
-          filters:
-            branches:
-              only: master
-          requires:
-            - prod-deploy
