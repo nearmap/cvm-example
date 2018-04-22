@@ -39,13 +39,7 @@ jobs:
       - run:
         name: Deploy to environment
         command: |
-          docker run \
-            -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-            -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-            nearmap/cvmanager cr tags add \
-            --repo ${ECR_ENDPOINT}/nearmap/cvm-example \
-            --tags demo \
-            --version ${CIRCLE_SHA1}
+          echo "steps to deploy container image ${CIRCLE_SHA1} to env"
 
 workflows:
   version: 2
