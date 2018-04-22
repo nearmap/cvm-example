@@ -1,8 +1,0 @@
-kind: ContainerVersion
-apiVersion: custom.k8s.io/v1
-metadata:
-  name: myappcv
-spec:
-  imageRepo: <AWS_ACC_ID>.dkr.ecr.us-east-1.amazonaws.com/nearmap/cvm-example
-  tag: demo
-  container: myapp
