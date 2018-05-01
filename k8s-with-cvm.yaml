@@ -6,7 +6,7 @@ metadata:
 spec:
   imageRepo: <AWS_ACC_ID>.dkr.ecr.us-east-1.amazonaws.com/nearmap/cvm-example
   tag: demo
-  checkFrequency: 5
+  pollIntervalSeconds: 30
   selector:
     cvapp: myapp
   container: myapp
