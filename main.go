@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"time"
 )
 
@@ -32,7 +31,6 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/echo", func(w http.ResponseWriter, req *http.Request) {
 		msg := req.URL.Query().Get("msg")
-		msg = strings.ToUpper(msg)
 		fmt.Fprintf(w, fmt.Sprintf(html, msg))
 	})
 
